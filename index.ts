@@ -32,10 +32,6 @@ async function collectTestRunInfo(process: child.ChildProcessWithoutNullStreams)
         });
 
         process.on('close', (code) => {
-            if (code && code > 0) {
-                console.error(`The test runner process closed unexpectedly. Exit Code: ${code}`)
-            }
-
             const testRunReport = new TestRunReport(+seedInfo, failedInfo);
             resolve(testRunReport);
         });
@@ -55,6 +51,11 @@ function dumpResultsToFile(results: TestRunReport[]) {
 }
 
 async function main() {
+    if (numberOfRuns > 30) {
+        console.error("Number of runs exceeds 30 threshold!");
+        return;
+    }
+
     var failureResults: TestRunReport[] = [];
 
     for (let i = 0; i < numberOfRuns; i++) {
@@ -71,4 +72,3 @@ async function main() {
 }
 
 main();
-
