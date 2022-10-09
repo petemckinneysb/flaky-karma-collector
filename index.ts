@@ -4,7 +4,8 @@ import { TextFileExporter } from './classes/text-file-exporter';
 const numberOfRuns: number = process.env.QPP_FLAKY_RUNS ? +process.env.QPP_FLAKY_RUNS : 2;
 const MAX_RUNS: number = 10;
 
-async function main() {
+
+(async () => {
     if (numberOfRuns > MAX_RUNS) {
         console.error(`Number of runs exceeds ${MAX_RUNS} threshold!`);
         return;
@@ -29,6 +30,4 @@ async function main() {
 
         console.log(`[${i + 1}] Completed Run for seed: ${result.seed}. Failures Detected: ${result.isFailureResult}. Test Run Time: ${elapsedTime / 1000}s`);
     }
-}
-
-main();
+})();
