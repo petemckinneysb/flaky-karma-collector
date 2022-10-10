@@ -17,3 +17,5 @@ npm run start
 Test Runs are currently output to a text file stored in ./output. The seed value is stored as well as all
 test failures reported.
 
+### Latest Test Failures: 
+https://gist.github.com/petemckinneysb/daa3e6477e2648d275ecc8b94e527c8b
