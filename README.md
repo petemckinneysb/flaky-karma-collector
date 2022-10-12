@@ -7,6 +7,7 @@
 npm ci
 export QPP_CLIENT_REPO="path/to/client/repository"
 export QPP_FLAKY_RUNS="number of desired full test runs" (defaults to 2 if not provided)
+export QPP_FLAKY_LOG_ENABLED=true (this will print stdout and stderr from the karma test run to the current console)
 
 npm run start
 
