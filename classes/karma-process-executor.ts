@@ -38,10 +38,10 @@ export class KarmaProcessExecutor {
             });
 
             process.on('close', (code) => {
+                Logger.log(`received exit code ${code}`);
                 const testRunReport = new TestRunReport(+seedInfo, failedInfo);
                 resolve(testRunReport);
             });
         });
     }
-
 }
