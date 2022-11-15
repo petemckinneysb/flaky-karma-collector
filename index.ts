@@ -1,5 +1,6 @@
 import { KarmaProcessExecutor } from './classes/karma-process-executor';
 import { TextFileExporter } from './classes/text-file-exporter';
+import * as fs from 'fs';
 
 const numberOfRuns: number = process.env.QPP_FLAKY_RUNS ? +process.env.QPP_FLAKY_RUNS : 2;
 const MAX_RUNS: number = 50;
@@ -7,12 +8,13 @@ const MAX_RUNS: number = 50;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 (async () => {
-    if (numberOfRuns > MAX_RUNS) {
-        console.error(`Number of runs exceeds ${MAX_RUNS} threshold!`);
+    if (!isEnvironmentValid()) {
+        console.error('Environment variables invalid, there should be messages above this indicating the issues');
         return;
     }
 
     console.log(`Running Tests [${numberOfRuns}] times at ~1 minutes for each run.`);
+    const overallStartTime = new Date().getTime();
     for (let i = 0; i < numberOfRuns; i++) {
         console.log(`[${i + 1}] Starting Test Run...`);
 
@@ -33,4 +35,21 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
         console.log(`Suspending for 1 minute.`);
         await sleep(60000);
     }
+
+    const overallElapsedTime = new Date().getTime() - overallStartTime;
+    console.log(`Total run time: ${overallElapsedTime}`);
 })();
+
+function isEnvironmentValid(): boolean {
+    if (numberOfRuns > MAX_RUNS) {
+        console.error(`Number of runs exceeds ${MAX_RUNS} threshold!`);
+        return false;
+    }
+
+    if (!process.env.QPP_CLIENT_REPO || !fs.existsSync(process.env.QPP_CLIENT_REPO)) {
+        console.error(`QPP_CLIENT_REPO undefined or directory does not exist.`);
+        return false;
+    }
+
+    return true;
+}
