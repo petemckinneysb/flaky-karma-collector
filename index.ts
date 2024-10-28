@@ -1,6 +1,7 @@
 import { KarmaProcessExecutor } from './classes/karma-process-executor';
 import { TextFileExporter } from './classes/text-file-exporter';
 import * as fs from 'fs';
+import * as child from 'child_process';
 
 const numberOfRuns: number = process.env.QPP_FLAKY_RUNS ? +process.env.QPP_FLAKY_RUNS : 2;
 const MAX_RUNS: number = 50;
@@ -10,6 +11,11 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 (async () => {
     if (!isEnvironmentValid()) {
         console.error('Environment variables invalid, there should be messages above this indicating the issues');
+        return;
+    }
+
+    if(!(await isSubmissionClientRepo())) {
+        console.error('QPP_CLIENT_REPO does not point to a valid client git repository.');
         return;
     }
 
@@ -33,7 +39,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
         console.log(`[${i + 1}] Completed Run for seed: ${result.seed}. Failures Detected: ${result.isFailureResult}. Test Run Time: ${elapsedTime / 1000}s`);
         console.log(`Suspending for 1 minute.`);
-        await sleep(60000);
+        //await sleep(60000);
     }
 
     const overallElapsedTime = new Date().getTime() - overallStartTime;
@@ -51,5 +57,31 @@ function isEnvironmentValid(): boolean {
         return false;
     }
 
+    if(!isSubmissionClientRepo()) {
+      console.error(`QPP_CLIENT_REPO does not point to a valid QPP CLIENT GIT REPOSITORY`);
+      return false;
+    }
+
     return true;
+}
+
+function isSubmissionClientRepo(): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    child.exec(
+      "git remote get-url origin",
+      { cwd: process.env.QPP_CLIENT_REPO },
+      (error, stdout: string) => {
+        if (error) {
+          reject();
+          return;
+        }
+
+        const remoteUrl = stdout.trim();
+        const urlParts = remoteUrl.split("/");
+        const repoName = urlParts[urlParts.length - 1]?.replace(/\.git$/, "");
+
+        resolve(repoName === "qpp-submission-client");
+      },
+    );
+  });
 }
