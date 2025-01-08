@@ -6,7 +6,7 @@ const submissionsClientRepoDirectory = process.env.QPP_CLIENT_REPO;
 export class KarmaProcessExecutor {
     async spawnTestProcess(): Promise<child.ChildProcessWithoutNullStreams> {
         return new Promise<child.ChildProcessWithoutNullStreams>(resolve => {
-            const testProcess = child.spawn(`npm run test:headless -- --watch=false`, [], { cwd: submissionsClientRepoDirectory, shell: true });
+            const testProcess = child.spawn(`npm run ci:unit:tests`, [], { cwd: submissionsClientRepoDirectory, shell: true });
 
             testProcess.on('spawn', () => {
                 resolve(testProcess);
